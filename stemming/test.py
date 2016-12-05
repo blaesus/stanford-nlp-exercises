@@ -18,7 +18,18 @@ for m_correct in get_m_test_data:
 print('\n~ stem ~')
 
 stem_test_data = {
-    'caresses': 'caress',
+    # 'caresses': 'caress',
+    # 'ponies': 'poni',
+    # 'ties': 'ti',
+    # 'caress': 'caress',
+    # 'cats': 'cat',
+
+    'feed': 'feed',
+    'agreed': 'agree',
+    # 'plastered': 'plaster',
+    # 'bled': 'bled',
+    # 'motoring': 'motor',
+    # 'sing': 'sing',
 }
 
 for full_form in stem_test_data:

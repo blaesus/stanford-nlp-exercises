@@ -43,7 +43,7 @@ rule_sets = {
     # rule_set_name: [
     #   (m_lower_bound_exclusive,
     #    ends_with_letters,
-    #    contains_vowel,
+    #    stem_contains_vowel,
     #    ends_with_double_consonant,
     #    ends_with_cvc,
     #    search_string,
@@ -55,9 +55,15 @@ rule_sets = {
 
     '1a': [
         (None, None, None, None, None, 'SSES', 'SS'),
-        (None, None, None, None, None, 'IES', 'I'),
-        (None, None, None, None, None, 'SS', 'SS'),
-        (None, None, None, None, None, 'S', ''),
+        (None, None, None, None, None, 'IES',  'I'),
+        (None, None, None, None, None, 'SS',   'SS'),
+        (None, None, None, None, None, 'S',    ''),
+    ],
+
+    '1b': [
+        (0,    None, None, None, None, 'EED', 'EE'),
+        (None, None, True, None, None, 'ED',  ''),
+        (None, None, True, None, None, 'ING', ''),
     ]
 }
 
@@ -67,15 +73,20 @@ def apply(s: str, rule) -> (str, bool):
     search_regex = re.escape(search_string) + r'$'
     replacement = rule[6].lower()
 
-    return (re.sub(search_regex, replacement, s),
-            re.search(search_regex, s))
+    return re.sub(search_regex, replacement, s)
+
+
+def apply_first_applicable_rule(s: str, rules: List):
+    for rule in rules:
+        result = apply(s, rule)
+        if result != s:
+            return result
+    return s
 
 
 def stem(s: str) -> str:
-    for rule in rule_sets['1a']:
-        s, is_rule_applied = apply(s, rule)
-        if is_rule_applied:
-            break
+    s = apply_first_applicable_rule(s, rule_sets['1a'])
+    s = apply_first_applicable_rule(s, rule_sets['1b'])
     return s
 
 FULL = 0
