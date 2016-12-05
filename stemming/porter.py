@@ -1,3 +1,10 @@
+"""
+    Stemmer with Porter's Algorithm, as specified in
+        http://snowball.tartarus.org/algorithms/porter/stemmer.html
+
+    Most functions expect lowercase input.
+"""
+
 from typing import List
 
 
@@ -31,10 +38,8 @@ def get_m(word: str) -> int:
     else:
         return 0
 
-print(get_m('trees'))
-
 rules = [
-    # (min_m,
+    # (m_lower_bound_exclusive,
     #  ends_with_letters,
     #  contains_vowel,
     #  ends_with_double_consonant,
@@ -42,7 +47,13 @@ rules = [
     #  search_string,
     #  replacement
     # )
-    ()
+
+    # Step 1a
+    (None, None, None, None, None, 'SSES', 'SS'),
+    (None, None, None, None, None, 'IES', 'I'),
+    (None, None, None, None, None, 'SS', 'SS'),
+    (None, None, None, None, None, 'S', ''),
+
 ]
 
 
