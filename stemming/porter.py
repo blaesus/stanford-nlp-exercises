@@ -5,7 +5,8 @@
     Most functions expect lowercase input.
 """
 
-from typing import List
+from typing import Tuple, List
+import re
 
 
 def is_vowel(char: str, previous_char: str = '') -> bool:
@@ -38,32 +39,43 @@ def get_m(word: str) -> int:
     else:
         return 0
 
-rules = [
-    # (m_lower_bound_exclusive,
-    #  ends_with_letters,
-    #  contains_vowel,
-    #  ends_with_double_consonant,
-    #  ends_with_cvc,
-    #  search_string,
-    #  replacement
-    # )
-
-    # Step 1a
-    (None, None, None, None, None, 'SSES', 'SS'),
-    (None, None, None, None, None, 'IES', 'I'),
-    (None, None, None, None, None, 'SS', 'SS'),
-    (None, None, None, None, None, 'S', ''),
-
-]
+rule_sets = {
+    # rule_set_name: [
+    #   (m_lower_bound_exclusive,
+    #    ends_with_letters,
+    #    contains_vowel,
+    #    ends_with_double_consonant,
+    #    ends_with_cvc,
+    #    search_string,
+    #    replacement,
+    #   ),
+    #   ...
+    # ]
 
 
-def apply(s: str, rule) -> str:
-    pass
+    '1a': [
+        (None, None, None, None, None, 'SSES', 'SS'),
+        (None, None, None, None, None, 'IES', 'I'),
+        (None, None, None, None, None, 'SS', 'SS'),
+        (None, None, None, None, None, 'S', ''),
+    ]
+}
+
+
+def apply(s: str, rule) -> (str, bool):
+    search_string = rule[5].lower()
+    search_regex = re.escape(search_string) + r'$'
+    replacement = rule[6].lower()
+
+    return (re.sub(search_regex, replacement, s),
+            re.search(search_regex, s))
 
 
 def stem(s: str) -> str:
-    for rule in rules:
-        s = apply(s, rule)
+    for rule in rule_sets['1a']:
+        s, is_rule_applied = apply(s, rule)
+        if is_rule_applied:
+            break
     return s
 
 FULL = 0

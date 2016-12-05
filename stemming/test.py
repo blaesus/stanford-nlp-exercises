@@ -1,4 +1,4 @@
-from porter import get_m
+from porter import get_m, stem
 
 print('\n~ get_m ~')
 
@@ -14,5 +14,19 @@ for m_correct in get_m_test_data:
         print('testing', word, '-', 'comparing', m_correct, 'and', m_calculated)
         assert m_correct == m_calculated
 
+
+print('\n~ stem ~')
+
+stem_test_data = {
+    'caresses': 'caress',
+}
+
+for full_form in stem_test_data:
+    stemmed_form_correct = stem_test_data[full_form]
+    stemmed_form_calculated = stem(full_form)
+    print('testing', full_form, '-',
+          'expecting', "'" + stemmed_form_correct + "',",
+          'got', "'" + stemmed_form_calculated + "'")
+    assert stemmed_form_correct == stemmed_form_calculated
 
 print('All tests passed')
