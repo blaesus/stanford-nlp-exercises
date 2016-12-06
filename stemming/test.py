@@ -30,6 +30,9 @@ stem_test_data = {
     'bled': 'bled',
     'motoring': 'motor',
     'sing': 'sing',
+
+    'happy': 'happi',
+    'sky': 'sky',
 }
 
 for full_form in stem_test_data:

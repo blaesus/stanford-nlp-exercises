@@ -72,6 +72,10 @@ rule_sets = {
         (None, None, True, None, None, 'ED',  ''),
         (None, None, True, None, None, 'ING', ''),
     ],
+
+    '1c': [
+        (None, None, True, None, None, 'Y', 'I'),
+    ]
 }
 
 
@@ -102,4 +106,5 @@ def apply_first_applicable_rule(s: str, rules: List):
 def stem(s: str) -> str:
     s = apply_first_applicable_rule(s, rule_sets['1a'])
     s = apply_first_applicable_rule(s, rule_sets['1b'])
+    s = apply_first_applicable_rule(s, rule_sets['1c'])
     return s
