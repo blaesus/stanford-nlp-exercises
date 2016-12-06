@@ -84,6 +84,15 @@ rule_sets = {
         (1, None, None, None, None, None, 'OUS', ''),
         (1, None, None, None, None, None, 'IVE', ''),
         (1, None, None, None, None, None, 'IZE', ''),
-    ]
+    ],
+
+    '5a': [
+        (1, None, None, None, None, None, 'E', ''),
+        (0,    2, None, None, None, False, 'E', ''),
+    ],
+
+    '5b': [
+        (1, None, ('L',), None, True, None, '.', ''),
+    ],
 }
 

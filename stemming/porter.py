@@ -21,7 +21,6 @@ def has_vowel(s: str) -> bool:
             return True
     return False
 
-
 def get_vc_list(word: str) -> List[str]:
     chars = list(word)
     for index, char in reversed(list(enumerate(chars))):
@@ -48,9 +47,14 @@ def get_m(word: str) -> int:
         return 0
 
 
+def is_asterisk_o(stem: str) -> bool:
+    vc_list = get_vc_list(stem[-3:])
+    return ''.join(vc_list) == 'cvc' and stem[-2] not in 'wxy'
+
+
 def apply(s: str, rule) -> Tuple[str, bool]:
     search_string = rule[6].lower()
-    search_regex = re.escape(search_string) + r'$'
+    search_regex = search_string + r'$'
     replacement = rule[7].lower()
     stem_candidate = re.sub(search_regex, '', s)
 
@@ -58,10 +62,12 @@ def apply(s: str, rule) -> Tuple[str, bool]:
     if (rule[0] is not None) and (m <= rule[0]):
         return s, False
 
+    if (rule[1] is not None) and (m >= rule[1]):
+        return s, False
+
     if rule[2]:
         should_proceed = False
         for letter in rule[2]:
-            print('checking', stem_candidate, 'ends with', letter)
             if stem_candidate.endswith(letter.lower()):
                 should_proceed = True
         if not should_proceed:
@@ -69,6 +75,10 @@ def apply(s: str, rule) -> Tuple[str, bool]:
 
     if rule[3] and not has_vowel(stem_candidate):
         return s, False
+
+    if rule[5] is not None:
+        if rule[5] ^ is_asterisk_o(stem_candidate):
+            return s, False
 
     if not re.search(search_regex, s):
         return s, False
@@ -91,4 +101,6 @@ def stem(s: str) -> str:
     s = apply_first_applicable_rule(s, rule_sets['2'])
     s = apply_first_applicable_rule(s, rule_sets['3'])
     s = apply_first_applicable_rule(s, rule_sets['4'])
+    s = apply_first_applicable_rule(s, rule_sets['5a'])
+    s = apply_first_applicable_rule(s, rule_sets['5b'])
     return s
