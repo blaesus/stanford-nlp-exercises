@@ -51,5 +51,16 @@ rule_sets = {
         (0,    None, None, None, None, 'IVITI', 'IVE'),
         (0,    None, None, None, None, 'BILITI', 'BLE'),
     ],
+
+    '3': [
+        (0,    None, None, None, None, 'ICATE', 'IC'),
+        (0,    None, None, None, None, 'ATIVE', ''),
+        (0,    None, None, None, None, 'ALIZE', 'AL'),
+        (0,    None, None, None, None, 'ICITI', 'IC'),
+        (0,    None, None, None, None, 'ICAL', 'IC'),
+        (0,    None, None, None, None, 'FUL', ''),
+        (0,    None, None, None, None, 'NESS', ''),
+
+    ],
 }
 
