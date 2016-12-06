@@ -15,9 +15,9 @@ for m_correct in get_m_test_data:
         assert m_correct == m_calculated
 
 
-print('\n~ stem ~')
+print('\n~ stem on official test data ~')
 
-stem_test_data = {
+official_stem_test_data = {
     'caresses': 'caress',
     'ponies': 'poni',
     'ties': 'ti',
@@ -33,10 +33,32 @@ stem_test_data = {
 
     'happy': 'happi',
     'sky': 'sky',
+
+    'relational': 'relate',
+    'conditional': 'condition',
+    'rational': 'rational',
+    'valenci': 'valence',
+    'hesitanci': 'hesitance',
+    'digitizer': 'digitize',
+    'conformabli': 'conformable',
+    'radicalli': 'radical',
+    'differentli': 'different',
+    'vileli': 'vile',
+    'analogousli': 'analogous',
+    'vietnamization': 'vietnamize',
+    'predication': 'predicate',
+    'operator': 'operate',
+    'feudalism': 'feudal',
+    'decisiveness': 'decisive',
+    'hopefulness': 'hopeful',
+    'callousness': 'callous',
+    'formaliti': 'formal',
+    'sensitiviti': 'sensitive',
+    'sensibiliti': 'sensible',
 }
 
-for full_form in stem_test_data:
-    stemmed_form_correct = stem_test_data[full_form]
+for full_form in official_stem_test_data:
+    stemmed_form_correct = official_stem_test_data[full_form]
     stemmed_form_calculated = stem(full_form)
     print('testing', full_form, '-',
           'expecting', "'" + stemmed_form_correct + "',",

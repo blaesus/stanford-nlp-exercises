@@ -75,11 +75,34 @@ rule_sets = {
 
     '1c': [
         (None, None, True, None, None, 'Y', 'I'),
-    ]
+    ],
+
+    '2': [
+        (0,    None, None, None, None, 'ATIONAL', 'ATE'),
+        (0,    None, None, None, None, 'TIONAL', 'TION'),
+        (0,    None, None, None, None, 'ENCI', 'ENCE'),
+        (0,    None, None, None, None, 'ANCI', 'ANCE'),
+        (0,    None, None, None, None, 'IZER', 'IZE'),
+        (0,    None, None, None, None, 'ABLI', 'ABLE'),
+        (0,    None, None, None, None, 'ALLI', 'AL'),
+        (0,    None, None, None, None, 'ENTLI', 'ENT'),
+        (0,    None, None, None, None, 'ELI', 'E'),
+        (0,    None, None, None, None, 'OUSLI', 'OUS'),
+        (0,    None, None, None, None, 'IZATION', 'IZE'),
+        (0,    None, None, None, None, 'ATION', 'ATE'),
+        (0,    None, None, None, None, 'ATOR', 'ATE'),
+        (0,    None, None, None, None, 'ALISM', 'AL'),
+        (0,    None, None, None, None, 'IVENESS', 'IVE'),
+        (0,    None, None, None, None, 'FULNESS', 'FUL'),
+        (0,    None, None, None, None, 'OUSNESS', 'OUS'),
+        (0,    None, None, None, None, 'ALITI', 'AL'),
+        (0,    None, None, None, None, 'IVITI', 'IVE'),
+        (0,    None, None, None, None, 'BILITI', 'BLE'),
+    ],
 }
 
 
-def apply(s: str, rule) -> str:
+def apply(s: str, rule) -> Tuple[str, bool]:
     search_string = rule[5].lower()
     search_regex = re.escape(search_string) + r'$'
     replacement = rule[6].lower()
@@ -87,18 +110,21 @@ def apply(s: str, rule) -> str:
 
     m = get_m(stem_candidate)
     if (rule[0] is not None) and (m <= rule[0]):
-        return s
+        return s, False
 
     if rule[2] and not has_vowel(stem_candidate):
-        return s
+        return s, False
 
-    return re.sub(search_regex, replacement, s)
+    if not re.search(search_regex, s):
+        return s, False
+
+    return re.sub(search_regex, replacement, s), True
 
 
 def apply_first_applicable_rule(s: str, rules: List):
     for rule in rules:
-        result = apply(s, rule)
-        if result != s:
+        result, is_rule_applied = apply(s, rule)
+        if is_rule_applied:
             return result
     return s
 
@@ -107,4 +133,5 @@ def stem(s: str) -> str:
     s = apply_first_applicable_rule(s, rule_sets['1a'])
     s = apply_first_applicable_rule(s, rule_sets['1b'])
     s = apply_first_applicable_rule(s, rule_sets['1c'])
+    s = apply_first_applicable_rule(s, rule_sets['2'])
     return s
