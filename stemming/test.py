@@ -83,6 +83,7 @@ official_stem_test_data = {
     'homologous': 'homolog',
     'effective': 'effect',
     'bowdlerize': 'bowdler',
+    'fuckatmion': 'fuckatmion',
 }
 
 for full_form in official_stem_test_data:

@@ -58,6 +58,15 @@ def apply(s: str, rule) -> Tuple[str, bool]:
     if (rule[0] is not None) and (m <= rule[0]):
         return s, False
 
+    if rule[1]:
+        should_proceed = False
+        for letter in rule[1]:
+            print('checking', stem_candidate, 'ends with', letter)
+            if stem_candidate.endswith(letter.lower()):
+                should_proceed = True
+        if not should_proceed:
+            return s, False
+
     if rule[2] and not has_vowel(stem_candidate):
         return s, False
 
