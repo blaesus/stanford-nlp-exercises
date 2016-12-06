@@ -49,25 +49,25 @@ def get_m(word: str) -> int:
 
 
 def apply(s: str, rule) -> Tuple[str, bool]:
-    search_string = rule[5].lower()
+    search_string = rule[6].lower()
     search_regex = re.escape(search_string) + r'$'
-    replacement = rule[6].lower()
+    replacement = rule[7].lower()
     stem_candidate = re.sub(search_regex, '', s)
 
     m = get_m(stem_candidate)
     if (rule[0] is not None) and (m <= rule[0]):
         return s, False
 
-    if rule[1]:
+    if rule[2]:
         should_proceed = False
-        for letter in rule[1]:
+        for letter in rule[2]:
             print('checking', stem_candidate, 'ends with', letter)
             if stem_candidate.endswith(letter.lower()):
                 should_proceed = True
         if not should_proceed:
             return s, False
 
-    if rule[2] and not has_vowel(stem_candidate):
+    if rule[3] and not has_vowel(stem_candidate):
         return s, False
 
     if not re.search(search_regex, s):
