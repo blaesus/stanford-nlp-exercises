@@ -62,5 +62,27 @@ rule_sets = {
         (0,    None, None, None, None, 'NESS', ''),
 
     ],
+
+    '4': [
+        (1,    None, None, None, None, 'AL', ''),
+        (1,    None, None, None, None, 'ANCE', ''),
+        (1,    None, None, None, None, 'ENCE', ''),
+        (1,    None, None, None, None, 'ER', ''),
+        (1,    None, None, None, None, 'IC', ''),
+        (1,    None, None, None, None, 'ABLE', ''),
+        (1,    None, None, None, None, 'IBLE', ''),
+        (1,    None, None, None, None, 'ANT', ''),
+        (1,    None, None, None, None, 'EMENT', ''),
+        (1,    None, None, None, None, 'MENT', ''),
+        (1,    None, None, None, None, 'ENT', ''),
+        (1,    ('S', 'T'), None, None, None, 'ION', ''),
+        (1,    None, None, None, None, 'OU', ''),
+        (1,    None, None, None, None, 'ISM', ''),
+        (1,    None, None, None, None, 'ATE', ''),
+        (1,    None, None, None, None, 'ITI', ''),
+        (1,    None, None, None, None, 'OUS', ''),
+        (1,    None, None, None, None, 'IVE', ''),
+        (1,    None, None, None, None, 'IZE', ''),
+    ]
 }
 

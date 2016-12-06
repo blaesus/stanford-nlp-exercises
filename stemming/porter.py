@@ -81,4 +81,5 @@ def stem(s: str) -> str:
     s = apply_first_applicable_rule(s, rule_sets['1c'])
     s = apply_first_applicable_rule(s, rule_sets['2'])
     s = apply_first_applicable_rule(s, rule_sets['3'])
+    s = apply_first_applicable_rule(s, rule_sets['4'])
     return s
