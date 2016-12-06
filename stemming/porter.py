@@ -14,6 +14,13 @@ def is_vowel(char: str, previous_char: str = '') -> bool:
     return (char in vowels) or (char == 'y' and previous_char not in vowels)
 
 
+def has_vowel(s: str) -> bool:
+    for char in s:
+        if is_vowel(char):
+            return True
+    return False
+
+
 def get_vc_list(word: str) -> List[str]:
     chars = list(word)
     for index, char in reversed(list(enumerate(chars))):
@@ -64,14 +71,22 @@ rule_sets = {
         (0,    None, None, None, None, 'EED', 'EE'),
         (None, None, True, None, None, 'ED',  ''),
         (None, None, True, None, None, 'ING', ''),
-    ]
+    ],
 }
 
 
-def apply(s: str, rule) -> (str, bool):
+def apply(s: str, rule) -> str:
     search_string = rule[5].lower()
     search_regex = re.escape(search_string) + r'$'
     replacement = rule[6].lower()
+    stem_candidate = re.sub(search_regex, '', s)
+
+    m = get_m(stem_candidate)
+    if (rule[0] is not None) and (m <= rule[0]):
+        return s
+
+    if rule[2] and not has_vowel(stem_candidate):
+        return s
 
     return re.sub(search_regex, replacement, s)
 
@@ -88,20 +103,3 @@ def stem(s: str) -> str:
     s = apply_first_applicable_rule(s, rule_sets['1a'])
     s = apply_first_applicable_rule(s, rule_sets['1b'])
     return s
-
-FULL = 0
-STEM = 1
-
-# test_data = [
-#     ('', ''),
-#     ('12345', '12345'),
-#     ('hello', 'hello'),
-#     ('morning', 'morning'),
-#     ('communism', 'commune'),
-#     ('relationship', 'relation'),
-# ]
-#
-# for datum in test_data:
-#     word = datum[FULL]
-#     true_stem = datum[STEM]
-#     print(word, true_stem, 'Correct' if stem(word) == true_stem else 'X')
