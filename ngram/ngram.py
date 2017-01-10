@@ -56,7 +56,6 @@ class MLE_Language_Model(object):
 
     def __init__(self, text: str, n: int=3):
         self.frequency_table = Frequency_Table(text, n)
-        self.text = text
         self.n = n
 
     def predict(self, tokens: Tuple[str]) -> float:
