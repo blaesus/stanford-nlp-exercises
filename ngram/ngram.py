@@ -63,9 +63,9 @@ class MLE_Language_Model(object):
         last_word = tokens[-1]
 
         try:
-            p1 = self.frequency_table[preceding_words][last_word]
-            p2 = sum(self.frequency_table[preceding_words].values())
-            return p1 / p2
+            p_sentence = self.frequency_table[preceding_words][last_word]
+            p_preceding_words = sum(self.frequency_table[preceding_words].values())
+            return p_sentence / p_preceding_words
         except KeyError:
             return 0
 
