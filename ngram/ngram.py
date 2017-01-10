@@ -4,17 +4,18 @@ from itertools import permutations
 
 Tokens = List[str]
 Vocabulary = List[str]
+START_TOKEN = '<start>'
 
 
 def clean(text: str) -> str:
     replace_table = (
         (',', ' '),
-        ('.', ' '),
+        ('.', ' '+START_TOKEN),
         (';', ' '),
         (':', ' '),
         ('-', ' '),
-        ('?', ' '),
-        ('!', ' ')
+        ('?', ' '+START_TOKEN),
+        ('!', ' '+START_TOKEN),
     )
     result = text.lower()
     for pair in replace_table:
@@ -58,17 +59,34 @@ class MLE_Language_Model(object):
         self.frequency_table = Frequency_Table(text, n)
         self.n = n
 
-    def predict(self,  tokens: Tuple[str]) -> float:
-        preceding_words = tokens[-1 * self.n:-1]
-        last_word = tokens[-1]
+    def predict(self, tokens: Tuple[str]) -> float:
 
-        try:
-            p_preceding = sum(self.frequency_table[preceding_words].values())
-            p_ = self.frequency_table[preceding_words][last_word]
-            print(p_sentence, p_preceding)
-            return p_sentence / p_preceding
-        except KeyError:
-            return 0
+        def conditional_prob(last_token: str, preceding_tokens: Tuple[str]) -> float:
+            marginal_frequencies = self.frequency_table[preceding_tokens]
+            try:
+                return marginal_frequencies[last_token] / sum(marginal_frequencies.values())
+            except KeyError:
+                return 0
+
+        p = 1.0
+        index = 0
+        tokens = (START_TOKEN,) + tokens
+
+        # Probability of initial tokens, say prob(<START>, 'this') for trigram
+        for k in range(1, self.n-1):
+            preceding_tokens = tokens[:k]
+            last_token = tokens[k]
+            print('k', preceding_tokens, last_token)
+
+        # Compound probability of tokens following the initial tokens
+        while index + self.n < len(tokens) + 1:
+            preceding_tokens = tokens[index:index+self.n-1]
+            last_token = tokens[index+self.n-1]
+            print(preceding_tokens, last_token)
+            p *= conditional_prob(last_token, preceding_tokens)
+            print(conditional_prob(last_token, preceding_tokens))
+            index += 1
+        return p
 
     def shannon(self, initial_tokens: Tuple[str], length=10) -> Tuple[str]:
 
@@ -86,6 +104,6 @@ class MLE_Language_Model(object):
 
 if __name__ == '__main__':
     text = open('./shakespeare.txt').read()
-    lm = MLE_Language_Model(text)
-    # print(lm.predict(('this', 'is', 'the',)))
-    print(lm.shannon(('if', 'you')))
+    lm = MLE_Language_Model(text, n=4)
+    print(lm.predict(('am', 'i', 'but', 'three', 'inches')))
+    # print(lm.shannon(('if', 'you')))
