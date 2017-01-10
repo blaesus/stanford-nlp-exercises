@@ -35,6 +35,8 @@ class Frequency_Table(Dict[Tuple, Dict[str, float]]):
 
         for i in range(0, len(tokens) - n):
             preceding_words = tokens[i:i+n-1]
+            if type(preceding_words) != tuple:
+                print(preceding_words)
             last_word = tokens[i+n]
             try:
                 self[preceding_words][last_word] += 1
@@ -44,6 +46,14 @@ class Frequency_Table(Dict[Tuple, Dict[str, float]]):
     def __missing__(self, key):
         value = self[key] = dict()
         return value
+
+    def normalize(self) -> None:
+        for preceding_word_tuple in self:
+            freq_sum = 0
+            for last_word in self[preceding_word_tuple]:
+                freq_sum += self[preceding_word_tuple][last_word]
+            for last_word in self[preceding_word_tuple]:
+                self[preceding_word_tuple][last_word] /= freq_sum
 
 
 def laplace_smooth(table: Frequency_Table) -> Frequency_Table:
@@ -55,6 +65,5 @@ def get_language_model(text: str, n: int=3) -> Callable[[Tokens], float]:
 
 if __name__ == '__main__':
     text = open('./shakespeare.txt').read()
-    unigram = Frequency_Table(text, 1)
     bigram = Frequency_Table(text, 2)
-    trigram = Frequency_Table(text, 3)
+    print(sum([bigram[('this',)][key] for key in bigram[('this',)]]))
