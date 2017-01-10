@@ -35,8 +35,6 @@ class Frequency_Table(Dict[Tuple, Dict[str, float]]):
 
         for i in range(0, len(tokens) - n):
             preceding_words = tokens[i:i+n-1]
-            if type(preceding_words) != tuple:
-                print(preceding_words)
             last_word = tokens[i+n]
             try:
                 self[preceding_words][last_word] += 1
