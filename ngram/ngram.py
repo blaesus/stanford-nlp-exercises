@@ -35,7 +35,7 @@ class Frequency_Table(Dict[Tuple, Dict[str, float]]):
 
         for i in range(0, len(tokens) - n):
             preceding_words = tokens[i:i+n-1]
-            last_word = tokens[i+n]
+            last_word = tokens[i+n-1]
             try:
                 self[preceding_words][last_word] += 1
             except KeyError:
@@ -58,18 +58,34 @@ class MLE_Language_Model(object):
         self.frequency_table = Frequency_Table(text, n)
         self.n = n
 
-    def predict(self, tokens: Tuple[str]) -> float:
+    def predict(self,  tokens: Tuple[str]) -> float:
         preceding_words = tokens[-1 * self.n:-1]
         last_word = tokens[-1]
 
         try:
-            p_sentence = self.frequency_table[preceding_words][last_word]
-            p_preceding_words = sum(self.frequency_table[preceding_words].values())
-            return p_sentence / p_preceding_words
+            p_preceding = sum(self.frequency_table[preceding_words].values())
+            p_ = self.frequency_table[preceding_words][last_word]
+            print(p_sentence, p_preceding)
+            return p_sentence / p_preceding
         except KeyError:
             return 0
+
+    def shannon(self, initial_tokens: Tuple[str], length=10) -> Tuple[str]:
+
+        result = initial_tokens
+        preceding = initial_tokens
+
+        while length > 0:
+            candidate_freq = self.frequency_table[preceding]
+            most_likely_next_word = max(candidate_freq, key=candidate_freq.get)
+            result = result + (most_likely_next_word,)
+            preceding = preceding[1:] + (most_likely_next_word,)
+            length -= 1
+
+        return result
 
 if __name__ == '__main__':
     text = open('./shakespeare.txt').read()
     lm = MLE_Language_Model(text)
-    print(lm.predict(('this', 'is', 'a',)))
+    # print(lm.predict(('this', 'is', 'the',)))
+    print(lm.shannon(('if', 'you')))
