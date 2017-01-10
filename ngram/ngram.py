@@ -54,15 +54,25 @@ class Frequency_Table(Dict[Tuple, Dict[str, float]]):
                 self[preceding_word_tuple][last_word] /= freq_sum
 
 
-def laplace_smooth(table: Frequency_Table) -> Frequency_Table:
-    pass
+class MLE_Language_Model(object):
 
+    def __init__(self, text: str, n: int=3):
+        self.frequency_table = Frequency_Table(text, n)
+        self.text = text
+        self.n = n
 
-def get_language_model(text: str, n: int=3) -> Callable[[Tokens], float]:
-    pass
+    def predict(self, tokens: Tuple[str]) -> float:
+        preceding_words = tokens[-1 * self.n:-1]
+        last_word = tokens[-1]
+
+        try:
+            p1 = self.frequency_table[preceding_words][last_word]
+            p2 = sum(self.frequency_table[preceding_words].values())
+            return p1 / p2
+        except KeyError:
+            return 0
 
 if __name__ == '__main__':
     text = open('./shakespeare.txt').read()
-    bigram = Frequency_Table(text, 2)
-    bigram.normalize()
-    print(sum(bigram[('this',)].values()))
+    lm = MLE_Language_Model(text)
+    print(lm.predict(('this', 'is', 'a',)))
