@@ -72,19 +72,33 @@ class MLE_Language_Model(object):
         index = 0
         tokens = (START_TOKEN,) + tokens
 
-        # Probability of initial tokens, say prob(<START>, 'this') for trigram
+        # Build up probabilities of initial tokens, for example, for trigram,
+        # prob(<START>, 'this')
+        # when length of conditional tokens is less than N
         for k in range(1, self.n-1):
             preceding_tokens = tokens[:k]
             last_token = tokens[k]
-            print('k', preceding_tokens, last_token)
+            print('tokens:', ' '.join(preceding_tokens), last_token)
+
+            freq_all = 0
+            freq_conditional = 0
+            for key in self.frequency_table:
+                if key[:k] == preceding_tokens:
+                    item_freq = sum(self.frequency_table[key].values())
+                    freq_all += item_freq
+                    if key[k] == last_token:
+                        freq_conditional += item_freq
+            p_initial = freq_conditional / freq_all
+            print('p = ', p_initial)
+            p *= p_initial
 
         # Compound probability of tokens following the initial tokens
         while index + self.n < len(tokens) + 1:
             preceding_tokens = tokens[index:index+self.n-1]
             last_token = tokens[index+self.n-1]
-            print(preceding_tokens, last_token)
+            print('tokens:', ' '.join(preceding_tokens), last_token)
             p *= conditional_prob(last_token, preceding_tokens)
-            print(conditional_prob(last_token, preceding_tokens))
+            print('p = ', conditional_prob(last_token, preceding_tokens))
             index += 1
         return p
 
