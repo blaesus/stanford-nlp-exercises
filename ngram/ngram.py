@@ -49,9 +49,7 @@ class Frequency_Table(Dict[Tuple, Dict[str, float]]):
 
     def normalize(self) -> None:
         for preceding_word_tuple in self:
-            freq_sum = 0
-            for last_word in self[preceding_word_tuple]:
-                freq_sum += self[preceding_word_tuple][last_word]
+            freq_sum = sum(self[preceding_word_tuple].values())
             for last_word in self[preceding_word_tuple]:
                 self[preceding_word_tuple][last_word] /= freq_sum
 
@@ -66,4 +64,5 @@ def get_language_model(text: str, n: int=3) -> Callable[[Tokens], float]:
 if __name__ == '__main__':
     text = open('./shakespeare.txt').read()
     bigram = Frequency_Table(text, 2)
-    print(sum([bigram[('this',)][key] for key in bigram[('this',)]]))
+    bigram.normalize()
+    print(sum(bigram[('this',)].values()))
