@@ -104,15 +104,16 @@ class MLE_Language_Model(object):
 
     def shannon(self, initial_tokens: Tuple[str], length=10) -> Tuple[str]:
 
-        result = initial_tokens
-        preceding = initial_tokens
+        assert(len(initial_tokens) >= self.n - 1)
 
-        while length > 0:
+        result = initial_tokens
+        preceding = initial_tokens[-self.n+1:]
+
+        while len(result) < length:
             candidate_freq = self.frequency_table[preceding]
             most_likely_next_word = max(candidate_freq, key=candidate_freq.get)
-            result = result + (most_likely_next_word,)
+            result += (most_likely_next_word,)
             preceding = preceding[1:] + (most_likely_next_word,)
-            length -= 1
 
         return result
 
@@ -120,4 +121,4 @@ if __name__ == '__main__':
     text = open('./shakespeare.txt').read()
     lm = MLE_Language_Model(text, n=4)
     print(lm.predict(('am', 'i', 'but', 'three', 'inches')))
-    # print(lm.shannon(('if', 'you')))
+    print(lm.shannon(('why', 'do', 'you')))
