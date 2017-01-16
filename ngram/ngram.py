@@ -33,6 +33,7 @@ class Frequency_Table(Dict[Tuple, Dict[str, float]]):
 
     def __init__(self, text: str, n: int=3):
         tokens, vocabulary = analyse_text(text)
+        self.vocabulary = vocabulary
 
         for i in range(0, len(tokens) - n):
             preceding_words = tokens[i:i+n-1]
@@ -117,8 +118,31 @@ class MLE_Language_Model(object):
 
         return result
 
+
+class Laplace_Language_Model(MLE_Language_Model):
+
+    def __init__(self, text: str, n: int=3, delta=1):
+        self.n = n
+        self.delta = delta
+        self.frequency_table = Frequency_Table(text, n)
+
+        # Smoothing
+        d = self.delta
+        vocabulary = self.frequency_table.vocabulary
+        preceding_word_combinations = permutations(vocabulary, n-1)
+        for preceding_words in preceding_word_combinations:
+            for last_word in vocabulary:
+                try:
+                    self.frequency_table[preceding_words][last_word] += d
+                except KeyError:
+                    self.frequency_table[preceding_words][last_word] = d
+
+
 if __name__ == '__main__':
     text = open('./shakespeare.txt').read()
-    lm = MLE_Language_Model(text, n=4)
-    print(lm.predict(('am', 'i', 'but', 'three', 'inches')))
-    print(lm.shannon(('why', 'do', 'you')))
+    # lm_mle = MLE_Language_Model(text, n=4)
+    # print(lm_mle.predict(('am', 'i', 'but', 'three', 'years')))
+    # print(lm_mle.shannon(('why', 'do', 'you')))
+
+    lm_laplace = Laplace_Language_Model(text, n=2)
+    print(lm_laplace.predict(('am', 'i', 'but', 'three', 'years')))
