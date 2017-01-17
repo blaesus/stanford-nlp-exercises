@@ -31,17 +31,19 @@ def analyse_text(text: str) -> Tuple[Tokens, Vocabulary]:
 
 class Frequency_Table(Dict[Tuple, Dict[str, float]]):
 
-    def __init__(self, text: str, n: int=3):
+    def __init__(self, text: str, max_n: int=3):
         tokens, vocabulary = analyse_text(text)
         self.vocabulary = vocabulary
+        self.max_n = max_n
 
-        for i in range(0, len(tokens) - n):
-            preceding_words = tokens[i:i+n-1]
-            last_word = tokens[i+n-1]
-            try:
-                self[preceding_words][last_word] += 1
-            except KeyError:
-                self[preceding_words][last_word] = 1
+        for n in range(1, max_n+1):
+            for i in range(0, len(tokens) - n):
+                preceding_words = tokens[i:i+n-1]
+                last_word = tokens[i+n-1]
+                try:
+                    self[preceding_words][last_word] += 1
+                except KeyError:
+                    self[preceding_words][last_word] = 1
 
     def __missing__(self, key):
         value = self[key] = dict()
@@ -139,10 +141,10 @@ class Laplace_Language_Model(MLE_Language_Model):
 
 
 if __name__ == '__main__':
-    text = open('./shakespeare.txt').read()
-    # lm_mle = MLE_Language_Model(text, n=4)
+    text = open('./lincoln.txt').read()
+    lm_mle = MLE_Language_Model(text, n=4)
     # print(lm_mle.predict(('am', 'i', 'but', 'three', 'years')))
-    # print(lm_mle.shannon(('why', 'do', 'you')))
+    print(lm_mle.shannon(('united', 'states', 'is')))
 
-    lm_laplace = Laplace_Language_Model(text, n=2)
-    print(lm_laplace.predict(('am', 'i', 'but', 'three', 'years')))
+    # lm_laplace = Laplace_Language_Model(text, n=2)
+    # print(lm_laplace.predict(('am', 'i', 'but', 'three', 'years')))
