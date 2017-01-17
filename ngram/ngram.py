@@ -29,31 +29,19 @@ def analyse_text(text: str) -> Tuple[Tokens, Vocabulary]:
     return tokens, vocabulary
 
 
-class Frequency_Table(Dict[Tuple, Dict[str, float]]):
+class Frequency_Table(Dict[str, float]):
 
     def __init__(self, text: str, max_n: int=3):
         tokens, vocabulary = analyse_text(text)
         self.vocabulary = vocabulary
-        self.max_n = max_n
 
         for n in range(1, max_n+1):
-            for i in range(0, len(tokens) - n):
-                preceding_words = tokens[i:i+n-1]
-                last_word = tokens[i+n-1]
+            for i in range(len(tokens) - n + 1):
+                word_tuple = tokens[i:i+n+1]
                 try:
-                    self[preceding_words][last_word] += 1
+                    self[word_tuple] += 1
                 except KeyError:
-                    self[preceding_words][last_word] = 1
-
-    def __missing__(self, key):
-        value = self[key] = dict()
-        return value
-
-    def normalize(self) -> None:
-        for preceding_word_tuple in self:
-            freq_sum = sum(self[preceding_word_tuple].values())
-            for last_word in self[preceding_word_tuple]:
-                self[preceding_word_tuple][last_word] /= freq_sum
+                    self[word_tuple] = 1
 
 
 class MLE_Language_Model(object):
@@ -142,9 +130,11 @@ class Laplace_Language_Model(MLE_Language_Model):
 
 if __name__ == '__main__':
     text = open('./lincoln.txt').read()
-    lm_mle = MLE_Language_Model(text, n=4)
+    # lm_mle = MLE_Language_Model(text, n=4)
     # print(lm_mle.predict(('am', 'i', 'but', 'three', 'years')))
-    print(lm_mle.shannon(('united', 'states', 'is')))
+    # print(lm_mle.shannon(('united', 'states', 'is')))
 
     # lm_laplace = Laplace_Language_Model(text, n=2)
     # print(lm_laplace.predict(('am', 'i', 'but', 'three', 'years')))
+
+    ft = Frequency_Table(text)
