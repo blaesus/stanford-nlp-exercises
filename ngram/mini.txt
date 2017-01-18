@@ -1,2 +1,2 @@
 Following is a list of text corpora in various languages. "Text corpora" is the plural of "text corpus". A text corpus is a large and structured set of texts (nowadays usually electronically stored and processed). Text corpora are used to do statistical analysis and hypothesis testing, checking occurrences or validating linguistic rules within a specific language territory.
-a b c d e a a b c d e x a c d e d f a c d
+a b c x e a a b c d e x a c d e d f a c d

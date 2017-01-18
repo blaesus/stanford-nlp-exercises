@@ -69,6 +69,14 @@ class Frequency_Table(Dict[str, float]):
             self.freq_cache[(frequency, n)] = count
             return count
 
+    def subdict_key_starting_with(self, tokens: Tokens) -> Dict:
+        result = {}
+        l = len(tokens)
+        for key in self:
+            if key[:l] == tokens:
+                result[key] = self[key]
+        return result
+
 
 class ML_Language_Model(object):
 
@@ -77,39 +85,40 @@ class ML_Language_Model(object):
         self.n = n
 
     def calc_cond_prob(self, tokens: Tokens, conditioning_tokens: Tokens) -> float:
-        return self.predict(tokens, conditioning_tokens)
+        ft = self.frequency_table
+        conditioning_tokens = conditioning_tokens[-self.n+1:]  # Markov property
+        return ft.count(conditioning_tokens + tokens) / ft.count(conditioning_tokens)
 
     def predict(self, tokens: Tokens, conditioning_tokens: Tokens = ()) -> float:
-
-        # print('calculating', 'P(', ','.join(tokens), '|', ','.join(conditioning_tokens), ')')
 
         if tokens == (START_TOKEN,):
             # All sentences should start with `<start>`
             assert len(conditioning_tokens) == 0
-            return 1
+            p = 1
 
         elif len(tokens) == 1:
-            ft = self.frequency_table
-            conditioning_tokens = conditioning_tokens[-self.n+1:]  # Markov property
-            return ft.count(conditioning_tokens + tokens) / ft.count(conditioning_tokens)
+            p = self.calc_cond_prob(tokens, conditioning_tokens)
+            # print('calculating', 'P(', ','.join(tokens), '|', ','.join(conditioning_tokens), ')')
+            # print('p =', p)
         else:
             # Chain rule of conditional probabilty
-            # P(abcde|X) = P(Xabcd) * P(e|Xabcd)
-            conditioning_tokens = conditioning_tokens + tokens[:-1]
-            tokens = tokens[-1:]
-            prior_prob = self.predict(conditioning_tokens)
+            # P(cde|Sab) = P(cd|Sab) * P(e|Sabcd)
+            prior_prob = self.predict(tokens[:-1], conditioning_tokens)
             if prior_prob == 0:  # Lazy evaluation to shortcircuit operation below
-                return 0
+                p = 0
             else:
-                conditional_prob = self.calc_cond_prob(tokens, conditioning_tokens)
-                return prior_prob * conditional_prob
+                conditional_prob = self.predict(tokens[-1:], conditioning_tokens + tokens[:-1])
+                p = prior_prob * conditional_prob
+
+        return p
 
 
 if __name__ == '__main__':
     # text = open('./lincoln.txt').read() + open('./churchill.txt').read()
     text = open('./mini.txt').read()
-    ml = ML_Language_Model(text, 3)
-    # print(ml.predict(('<start>', 'a', 'text', 'corpus', 'is')))
-    print(ml.predict(('<start>', 'a', 'text', 'corpus', 'is')))
-    # print(ml.predict((START_TOKEN, 'a', 'b', 'c', 'd', 'e')))
-    # print(ml.predict(('<start>', 'this', 'is', 'the', 'war', 'of', 'the'))
+    lm = ML_Language_Model(text, 3)
+    print(lm.predict(('<start>', 'a', 'text', 'corpus', 'is')))
+    print(lm.predict(('c', 'd'), (START_TOKEN, 'a', 'b')))
+    print(lm.predict(('<start>', 'a', 'x', 'corpus', 'is')))
+    print(lm.predict((START_TOKEN, 'a', 'b', 'c', 'd', 'e')))
+    # print(lm.predict(('<start>', 'this', 'is', 'the', 'war', 'of', 'the'))
