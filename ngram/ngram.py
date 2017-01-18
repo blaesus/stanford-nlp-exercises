@@ -69,7 +69,7 @@ class Frequency_Table(Dict[Tuple[str], float]):
             self.freq_cache[(frequency, n)] = count
             return count
 
-    def subdict_key_starting_with(self, tokens: Tokens) -> Dict:
+    def subdict_key_starting_with(self, tokens: Tokens) -> Frequency_Table:
         result = {}
         l = len(tokens)
         for key in self:
