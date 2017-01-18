@@ -96,10 +96,10 @@ class ML_Language_Model(object):
         if tokens == (START_TOKEN,):
             # All sentences should start with `<start>`
             assert len(conditioning_tokens) == 0
-            p = 1
+            prob = 1
 
         elif len(tokens) == 1:
-            p = self.calc_final_cond_prob(tokens, conditioning_tokens)
+            prob = self.calc_final_cond_prob(tokens, conditioning_tokens)
             # print('calculating', 'P(', ','.join(tokens), '|', ','.join(conditioning_tokens), ')')
             # print('p =', p)
         else:
@@ -107,12 +107,12 @@ class ML_Language_Model(object):
             # P(cde|Sab) = P(cd|Sab) * P(e|Sabcd)
             prior_prob = self.predict(tokens[:-1], conditioning_tokens)
             if prior_prob == 0:  # Lazy evaluation to shortcircuit operation below
-                p = 0
+                prob = 0
             else:
                 conditional_prob = self.predict(tokens[-1:], conditioning_tokens + tokens[:-1])
-                p = prior_prob * conditional_prob
+                prob = prior_prob * conditional_prob
 
-        return p
+        return prob
 
 
 if __name__ == '__main__':
