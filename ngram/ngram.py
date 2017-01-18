@@ -34,102 +34,50 @@ class Frequency_Table(Dict[str, float]):
     def __init__(self, text: str, max_n: int=3):
         tokens, vocabulary = analyse_text(text)
         self.vocabulary = vocabulary
+        self.max_n = max_n
+        self.freq_cache = {}
 
         for n in range(1, max_n+1):
             for i in range(len(tokens) - n + 1):
-                word_tuple = tokens[i:i+n+1]
+                word_tuple = tokens[i:i+n]
                 try:
                     self[word_tuple] += 1
                 except KeyError:
                     self[word_tuple] = 1
 
+    def count(self, tokens: Tuple[str]) -> int:
+        try:
+            return self[tokens]
+        except KeyError:
+            return 0
 
-class MLE_Language_Model(object):
+    def count_tokens_of_frequency(self, frequency: int, n=None) -> int:
+        try:
+            return self.freq_cache[frequency]
+        except KeyError:
+            if n is None:
+                n = self.max_n
 
-    def __init__(self, text: str, n: int=3):
-        self.frequency_table = Frequency_Table(text, n)
-        self.n = n
+            count = 0
+            for key in self:
+                if len(key) == n and self[key] == frequency:
+                    count += 1
 
-    def predict(self, tokens: Tuple[str]) -> float:
-
-        def conditional_prob(last_token: str, preceding_tokens: Tuple[str]) -> float:
-            marginal_frequencies = self.frequency_table[preceding_tokens]
-            try:
-                return marginal_frequencies[last_token] / sum(marginal_frequencies.values())
-            except KeyError:
-                return 0
-
-        p = 1.0
-        index = 0
-        tokens = (START_TOKEN,) + tokens
-
-        # Build up probabilities of initial tokens, for example, for trigram,
-        # prob(<START>, 'this')
-        # when length of conditional tokens is less than N
-        for k in range(1, self.n-1):
-            preceding_tokens = tokens[:k]
-            last_token = tokens[k]
-            print('tokens:', ' '.join(preceding_tokens), last_token)
-
-            freq_all = 0
-            freq_conditional = 0
-            for key in self.frequency_table:
-                if key[:k] == preceding_tokens:
-                    item_freq = sum(self.frequency_table[key].values())
-                    freq_all += item_freq
-                    if key[k] == last_token:
-                        freq_conditional += item_freq
-            p_initial = freq_conditional / freq_all
-            print('p = ', p_initial)
-            p *= p_initial
-
-        # Compound probability of tokens following the initial tokens
-        while index + self.n < len(tokens) + 1:
-            preceding_tokens = tokens[index:index+self.n-1]
-            last_token = tokens[index+self.n-1]
-            print('tokens:', ' '.join(preceding_tokens), last_token)
-            p *= conditional_prob(last_token, preceding_tokens)
-            print('p = ', conditional_prob(last_token, preceding_tokens))
-            index += 1
-        return p
-
-    def shannon(self, initial_tokens: Tuple[str], length=10) -> Tuple[str]:
-
-        assert(len(initial_tokens) >= self.n - 1)
-
-        result = initial_tokens
-        preceding = initial_tokens[-self.n+1:]
-
-        while len(result) < length:
-            candidate_freq = self.frequency_table[preceding]
-            most_likely_next_word = max(candidate_freq, key=candidate_freq.get)
-            result += (most_likely_next_word,)
-            preceding = preceding[1:] + (most_likely_next_word,)
-
-        return result
+            self.freq_cache[frequency] = count
+            return count
 
 
-class Laplace_Language_Model(MLE_Language_Model):
+class Language_Model(object):
 
-    def __init__(self, text: str, n: int=3, delta=1):
-        self.n = n
-        self.delta = delta
-        self.frequency_table = Frequency_Table(text, n)
+    def __init__(self):
+        pass
 
-        # Smoothing
-        d = self.delta
-        vocabulary = self.frequency_table.vocabulary
-        preceding_word_combinations = permutations(vocabulary, n-1)
-        for preceding_words in preceding_word_combinations:
-            for last_word in vocabulary:
-                try:
-                    self.frequency_table[preceding_words][last_word] += d
-                except KeyError:
-                    self.frequency_table[preceding_words][last_word] = d
+    def predict(self, sentence: Tuple[str]) -> float:
+        pass
 
 
 if __name__ == '__main__':
-    text = open('./lincoln.txt').read()
+    text = open('./lincoln.txt').read() + open('./churchill.txt').read()
     # lm_mle = MLE_Language_Model(text, n=4)
     # print(lm_mle.predict(('am', 'i', 'but', 'three', 'years')))
     # print(lm_mle.shannon(('united', 'states', 'is')))
@@ -138,3 +86,4 @@ if __name__ == '__main__':
     # print(lm_laplace.predict(('am', 'i', 'but', 'three', 'years')))
 
     ft = Frequency_Table(text)
+    print(ft.count(('this',)))
