@@ -31,7 +31,7 @@ def analyse_text(text: str) -> Tuple[Tokens, Vocabulary]:
     return tokens, vocabulary
 
 
-class Frequency_Table(Dict[str, float]):
+class Frequency_Table(Dict[Tuple[str], float]):
 
     def __init__(self, text: str, max_n: int=3):
         tokens, vocabulary = analyse_text(text)
@@ -93,7 +93,7 @@ class ML_Language_Model(object):
 
     def calc_prob_by_deunion(self, tokens: Tokens, conditioning_tokens: Tokens) -> float:
         # Use chain rule of conditional probabilty to reduce length of tokens,
-        # i.e. reduce the size of union of events on left side of P operator:
+        # i.e. reduce the size of union of events:
         # P(cde|Sab) = P(cd|Sab) * P(e|Sabcd)
         prior_prob = self.predict(tokens[:-1], conditioning_tokens)
         if prior_prob == 0:  # Lazy evaluation to shortcircuit operation below
