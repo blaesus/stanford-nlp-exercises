@@ -84,7 +84,9 @@ class ML_Language_Model(object):
         self.frequency_table = Frequency_Table(text, n)
         self.n = n
 
-    def calc_cond_prob(self, tokens: Tokens, conditioning_tokens: Tokens) -> float:
+    def calc_final_cond_prob(self, tokens: Tokens, conditioning_tokens: Tokens) -> float:
+        assert len(tokens) == 1
+
         ft = self.frequency_table
         conditioning_tokens = conditioning_tokens[-self.n+1:]  # Markov property
         return ft.count(conditioning_tokens + tokens) / ft.count(conditioning_tokens)
@@ -97,7 +99,7 @@ class ML_Language_Model(object):
             p = 1
 
         elif len(tokens) == 1:
-            p = self.calc_cond_prob(tokens, conditioning_tokens)
+            p = self.calc_final_cond_prob(tokens, conditioning_tokens)
             # print('calculating', 'P(', ','.join(tokens), '|', ','.join(conditioning_tokens), ')')
             # print('p =', p)
         else:
