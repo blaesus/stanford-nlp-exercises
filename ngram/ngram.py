@@ -91,6 +91,17 @@ class ML_Language_Model(object):
         conditioning_tokens = conditioning_tokens[-self.n+1:]  # Markov property
         return ft.count(conditioning_tokens + tokens) / ft.count(conditioning_tokens)
 
+    def calc_prob_by_deunion(self, tokens: Tokens, conditioning_tokens: Tokens) -> float:
+        # Use chain rule of conditional probabilty to reduce length of tokens,
+        # i.e. reduce the size of union of events on left side of P operator:
+        # P(cde|Sab) = P(cd|Sab) * P(e|Sabcd)
+        prior_prob = self.predict(tokens[:-1], conditioning_tokens)
+        if prior_prob == 0:  # Lazy evaluation to shortcircuit operation below
+            prob = 0
+        else:
+            conditional_prob = self.predict(tokens[-1:], conditioning_tokens + tokens[:-1])
+            prob = prior_prob * conditional_prob
+
     def predict(self, tokens: Tokens, conditioning_tokens: Tokens = ()) -> float:
 
         if tokens == (START_TOKEN,):
@@ -103,14 +114,7 @@ class ML_Language_Model(object):
             # print('calculating', 'P(', ','.join(tokens), '|', ','.join(conditioning_tokens), ')')
             # print('p =', p)
         else:
-            # Chain rule of conditional probabilty
-            # P(cde|Sab) = P(cd|Sab) * P(e|Sabcd)
-            prior_prob = self.predict(tokens[:-1], conditioning_tokens)
-            if prior_prob == 0:  # Lazy evaluation to shortcircuit operation below
-                prob = 0
-            else:
-                conditional_prob = self.predict(tokens[-1:], conditioning_tokens + tokens[:-1])
-                prob = prior_prob * conditional_prob
+            prob = self.calc_prob_by_deunion(tokens, conditioning_tokens)
 
         return prob
 
