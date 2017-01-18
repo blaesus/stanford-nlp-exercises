@@ -69,7 +69,7 @@ class Frequency_Table(Dict[Tuple[str], float]):
             self.freq_cache[(frequency, n)] = count
             return count
 
-    def subdict_key_starting_with(self, tokens: Tokens) -> Frequency_Table:
+    def subdict_key_starting_with(self, tokens: Tokens) -> Dict:
         result = {}
         l = len(tokens)
         for key in self:
@@ -101,6 +101,7 @@ class ML_Language_Model(object):
         else:
             conditional_prob = self.predict(tokens[-1:], conditioning_tokens + tokens[:-1])
             prob = prior_prob * conditional_prob
+        return prob
 
     def predict(self, tokens: Tokens, conditioning_tokens: Tokens = ()) -> float:
 
@@ -120,11 +121,11 @@ class ML_Language_Model(object):
 
 
 if __name__ == '__main__':
-    # text = open('./lincoln.txt').read() + open('./churchill.txt').read()
-    text = open('./mini.txt').read()
+    # text = open('data/lincoln.txt').read() + open('data/churchill.txt').read()
+    text = open('data/mini.txt').read()
     lm = ML_Language_Model(text, 3)
     print(lm.predict(('<start>', 'a', 'text', 'corpus', 'is')))
-    print(lm.predict(('c', 'd'), (START_TOKEN, 'a', 'b')))
-    print(lm.predict(('<start>', 'a', 'x', 'corpus', 'is')))
-    print(lm.predict((START_TOKEN, 'a', 'b', 'c', 'd', 'e')))
-    # print(lm.predict(('<start>', 'this', 'is', 'the', 'war', 'of', 'the'))
+    # print(lm.predict(('c', 'd'), (START_TOKEN, 'a', 'b')))
+    # print(lm.predict(('<start>', 'a', 'x', 'corpus', 'is')))
+    # print(lm.predict((START_TOKEN, 'a', 'b', 'c', 'd', 'e')))
+    print(lm.predict(('<start>', 'this', 'is', 'the', 'war', 'of', 'the')))
