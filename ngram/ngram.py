@@ -53,7 +53,7 @@ class Frequency_Table(Dict[str, float]):
         except KeyError:
             return 0
 
-    def count_tokens_of_frequency(self, frequency: int, n=None) -> int:
+    def count_tokens_of_frequency(self, frequency: int, n: int=None) -> int:
         try:
             return self.freq_cache[(frequency, n)]
         except KeyError:
@@ -70,24 +70,30 @@ class Frequency_Table(Dict[str, float]):
             return count
 
 
-class Language_Model(object):
+class ML_Language_Model(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, text: str, n: int=3):
+        self.frequency_table = Frequency_Table(text, n)
+        self.n = n
+
+    def prob(self, token: str, conditioning_tokens: Tuple[str]) -> float:
+        ft = self.frequency_table
+        try:
+            return ft.count(conditioning_tokens + (token,)) / ft.count(conditioning_tokens)
+        except ZeroDivisionError:
+            return 0.0
 
     def predict(self, sentence: Tuple[str]) -> float:
-        pass
+        p = 1.0
+        for i in range(1, len(sentence)):
+            token = sentence[i]
+            preceding_tokens = sentence[max(i-self.n+1, 0):i]
+            p *= self.prob(token, preceding_tokens)
+        return p
 
 
 if __name__ == '__main__':
-    # text = open('./lincoln.txt').read() + open('./churchill.txt').read()
-    text = open('./mini.txt').read()
-    # lm_mle = MLE_Language_Model(text, n=4)
-    # print(lm_mle.predict(('am', 'i', 'but', 'three', 'years')))
-    # print(lm_mle.shannon(('united', 'states', 'is')))
-
-    # lm_laplace = Laplace_Language_Model(text, n=2)
-    # print(lm_laplace.predict(('am', 'i', 'but', 'three', 'years')))
-
-    ft = Frequency_Table(text)
-    print(ft.count(('this',)))
+    text = open('./lincoln.txt').read() + open('./churchill.txt').read()
+    # text = open('./mini.txt').read()
+    ml = ML_Language_Model(text, 3)
+    print(ml.predict(('<start>', 'this', 'is', 'the', 'war', 'of', 'the')))
