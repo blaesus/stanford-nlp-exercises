@@ -2,7 +2,7 @@ from typing import Tuple, List, Dict, Callable
 from collections import Counter
 from itertools import permutations
 
-Tokens = List[str]
+Tokens = Tuple[str]
 Vocabulary = List[str]
 START_TOKEN = '<start>'
 
@@ -76,16 +76,21 @@ class ML_Language_Model(object):
         self.frequency_table = Frequency_Table(text, n)
         self.n = n
 
-    def predict(self, tokens: Tuple[str], conditioning_tokens: Tuple[str] = ()) -> float:
-        # Markov property
-        conditioning_tokens = conditioning_tokens[-self.n+1:]
-        print('calculating', 'P(', ','.join(tokens), '|', ','.join(conditioning_tokens), ')')
+    def calc_cond_prob(self, tokens: Tokens, conditioning_tokens: Tokens) -> float:
+        return self.predict(tokens, conditioning_tokens)
+
+    def predict(self, tokens: Tokens, conditioning_tokens: Tokens = ()) -> float:
+
+        # print('calculating', 'P(', ','.join(tokens), '|', ','.join(conditioning_tokens), ')')
 
         if tokens == (START_TOKEN,):
+            # All sentences should start with `<start>`
+            assert len(conditioning_tokens) == 0
             return 1
 
         elif len(tokens) == 1:
             ft = self.frequency_table
+            conditioning_tokens = conditioning_tokens[-self.n+1:]  # Markov property
             return ft.count(conditioning_tokens + tokens) / ft.count(conditioning_tokens)
         else:
             # Chain rule of conditional probabilty
@@ -96,7 +101,7 @@ class ML_Language_Model(object):
             if prior_prob == 0:  # Lazy evaluation to shortcircuit operation below
                 return 0
             else:
-                conditional_prob = self.predict(tokens, conditioning_tokens)
+                conditional_prob = self.calc_cond_prob(tokens, conditioning_tokens)
                 return prior_prob * conditional_prob
 
 
