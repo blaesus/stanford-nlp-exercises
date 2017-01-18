@@ -88,8 +88,8 @@ class ML_Language_Model(object):
         assert len(tokens) == 1
 
         ft = self.frequency_table
-        conditioning_tokens = conditioning_tokens[-self.n+1:]  # Markov property
-        return ft.count(conditioning_tokens + tokens) / ft.count(conditioning_tokens)
+        cond_tokens_markov = conditioning_tokens[-self.n+1:]  # Markov property
+        return ft.count(cond_tokens_markov + tokens) / ft.count(cond_tokens_markov)
 
     def calc_prob_by_deunion(self, tokens: Tokens, conditioning_tokens: Tokens) -> float:
         # Use chain rule of conditional probabilty to reduce length of tokens,
