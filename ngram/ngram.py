@@ -76,24 +76,35 @@ class ML_Language_Model(object):
         self.frequency_table = Frequency_Table(text, n)
         self.n = n
 
-    def prob(self, token: str, conditioning_tokens: Tuple[str]) -> float:
-        ft = self.frequency_table
-        try:
-            return ft.count(conditioning_tokens + (token,)) / ft.count(conditioning_tokens)
-        except ZeroDivisionError:
-            return 0.0
+    def predict(self, tokens: Tuple[str], conditioning_tokens: Tuple[str] = ()) -> float:
+        # Markov property
+        conditioning_tokens = conditioning_tokens[-self.n+1:]
+        print('calculating', 'P(', ','.join(tokens), '|', ','.join(conditioning_tokens), ')')
 
-    def predict(self, sentence: Tuple[str]) -> float:
-        p = 1.0
-        for i in range(1, len(sentence)):
-            token = sentence[i]
-            preceding_tokens = sentence[max(i-self.n+1, 0):i]
-            p *= self.prob(token, preceding_tokens)
-        return p
+        if tokens == (START_TOKEN,):
+            return 1
+
+        elif len(tokens) == 1:
+            ft = self.frequency_table
+            return ft.count(conditioning_tokens + tokens) / ft.count(conditioning_tokens)
+        else:
+            # Chain rule of conditional probabilty
+            # P(abcde|X) = P(Xabcd) * P(e|Xabcd)
+            conditioning_tokens = conditioning_tokens + tokens[:-1]
+            tokens = tokens[-1:]
+            prior_prob = self.predict(conditioning_tokens)
+            if prior_prob == 0:  # Lazy evaluation to shortcircuit operation below
+                return 0
+            else:
+                conditional_prob = self.predict(tokens, conditioning_tokens)
+                return prior_prob * conditional_prob
 
 
 if __name__ == '__main__':
-    text = open('./lincoln.txt').read() + open('./churchill.txt').read()
-    # text = open('./mini.txt').read()
+    # text = open('./lincoln.txt').read() + open('./churchill.txt').read()
+    text = open('./mini.txt').read()
     ml = ML_Language_Model(text, 3)
-    print(ml.predict(('<start>', 'this', 'is', 'the', 'war', 'of', 'the')))
+    # print(ml.predict(('<start>', 'a', 'text', 'corpus', 'is')))
+    print(ml.predict(('<start>', 'a', 'text', 'corpus', 'is')))
+    # print(ml.predict((START_TOKEN, 'a', 'b', 'c', 'd', 'e')))
+    # print(ml.predict(('<start>', 'this', 'is', 'the', 'war', 'of', 'the'))
