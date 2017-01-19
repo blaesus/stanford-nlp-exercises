@@ -38,6 +38,8 @@ class Frequency_Table(Dict[Tuple[str], float]):
         self.vocabulary = vocabulary
         self.max_n = max_n
         self.freq_cache = {}
+        self.N = len(tokens)
+        self.V = len(vocabulary)
 
         for n in range(1, max_n+1):
             for i in range(len(tokens) - n + 1):
@@ -120,12 +122,42 @@ class ML_Language_Model(object):
         return prob
 
 
+class Language_Model_Stupid_Backoff(ML_Language_Model):
+
+    def calc_final_cond_prob(self, tokens: Tokens, conditioning_tokens: Tokens) -> float:
+        assert len(tokens) == 1
+
+        BACKOFF_VALUE = 0.4
+
+        ft = self.frequency_table
+        cond_tokens_markov = conditioning_tokens[-self.n+1:]
+
+        sentence_count = ft.count(cond_tokens_markov + tokens)
+        condition_count = ft.count(cond_tokens_markov)
+
+        # Backoff
+        backoff_times = 0
+        while sentence_count == 0 or condition_count == 0:
+
+            if not cond_tokens_markov:
+                # No more conditions for backoff, use unigram
+                return (BACKOFF_VALUE ** backoff_times) * (sentence_count / ft.N)
+
+            cond_tokens_markov = cond_tokens_markov[1:]
+            sentence_count = ft.count(cond_tokens_markov + tokens)
+            condition_count = ft.count(cond_tokens_markov)
+            backoff_times += 1
+
+        p = sentence_count / condition_count
+        return (BACKOFF_VALUE ** backoff_times) * p
+
+
 if __name__ == '__main__':
     # text = open('data/lincoln.txt').read() + open('data/churchill.txt').read()
     text = open('data/mini.txt').read()
-    lm = ML_Language_Model(text, 3)
-    print(lm.predict(('<start>', 'a', 'text', 'corpus', 'is')))
+    lm = Language_Model_Stupid_Backoff(text, 3)
+    print(lm.predict(('<start>', 'a', 'text', 'text', 'linguistic')))
     # print(lm.predict(('c', 'd'), (START_TOKEN, 'a', 'b')))
     # print(lm.predict(('<start>', 'a', 'x', 'corpus', 'is')))
     # print(lm.predict((START_TOKEN, 'a', 'b', 'c', 'd', 'e')))
-    print(lm.predict(('<start>', 'this', 'is', 'the', 'war', 'of', 'the')))
+    # print(lm.predict(('<start>', 'this', 'is', 'the', 'war', 'of', 'the')))
