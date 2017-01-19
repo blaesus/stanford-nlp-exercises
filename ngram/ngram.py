@@ -79,6 +79,9 @@ class Frequency_Table(Dict[Tuple[str], float]):
                 result[key] = self[key]
         return result
 
+    def calc_vocabulary_size_of_n(self, n: int) -> int:
+        return len([key for key in self.keys() if len(key) == n])
+
 
 class ML_Language_Model(object):
 
