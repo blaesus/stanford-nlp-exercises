@@ -155,12 +155,39 @@ class Language_Model_Stupid_Backoff(ML_Language_Model):
         return (BACKOFF_VALUE ** backoff_times) * p
 
 
+class Language_Model_Additive_Smoothing(ML_Language_Model):
+
+    def __init__(self, text: str, n: int=3, delta: int=1):
+        self.frequency_table = Frequency_Table(text, n)
+        self.n = n
+        self.delta = delta
+
+    def calc_final_cond_prob(self, tokens: Tokens, conditioning_tokens: Tokens) -> float:
+        assert len(tokens) == 1
+
+        ft = self.frequency_table
+        cond_tokens_markov = conditioning_tokens[-self.n+1:]  # Markov property
+
+        sentence_count = ft.count(cond_tokens_markov + tokens)
+        condition_count = ft.count(cond_tokens_markov)
+
+        sentence_count_smooth = sentence_count + self.delta
+        condition_count_smooth = condition_count + \
+            self.delta * (self.frequency_table.calc_vocabulary_size_of_n(len(cond_tokens_markov)))
+
+        # print('P(', ','.join(tokens), '|', ','.join(conditioning_tokens), ')')    
+        # print(sentence_count, '/', condition_count, '->', sentence_count_smooth, '/', condition_count_smooth)
+
+        return sentence_count_smooth / condition_count_smooth
+
+
 if __name__ == '__main__':
     # text = open('data/lincoln.txt').read() + open('data/churchill.txt').read()
     text = open('data/mini.txt').read()
-    lm = Language_Model_Stupid_Backoff(text, 3)
-    print(lm.predict(('<start>', 'a', 'text', 'text', 'linguistic')))
+    # lm = Language_Model_Stupid_Backoff(text, 3)
+    lm = Language_Model_Additive_Smoothing(text)
+    # print(lm.predict(('<start>', 'a', 'right', 'president', 'britain')))
     # print(lm.predict(('c', 'd'), (START_TOKEN, 'a', 'b')))
-    # print(lm.predict(('<start>', 'a', 'x', 'corpus', 'is')))
+    print(lm.predict(('<start>', 'a', 'XXX', 'corpus', 'is')))
     # print(lm.predict((START_TOKEN, 'a', 'b', 'c', 'd', 'e')))
     # print(lm.predict(('<start>', 'this', 'is', 'the', 'war', 'of', 'the')))
