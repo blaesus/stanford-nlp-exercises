@@ -79,7 +79,7 @@ class Frequency_Table(Dict[Tuple[str], float]):
                 result[key] = self[key]
         return result
 
-    def calc_vocabulary_size_of_n(self, n: int) -> int:
+    def count_tokens_of_size(self, n: int) -> int:
         return len([key for key in self.keys() if len(key) == n])
 
 
@@ -173,7 +173,7 @@ class Language_Model_Additive_Smoothing(ML_Language_Model):
 
         sentence_count_smooth = sentence_count + self.delta
         condition_count_smooth = condition_count + \
-            self.delta * (self.frequency_table.calc_vocabulary_size_of_n(len(cond_tokens_markov)))
+            self.delta * (self.frequency_table.count_tokens_of_size(len(cond_tokens_markov)))
 
         # print('P(', ','.join(tokens), '|', ','.join(conditioning_tokens), ')')    
         # print(sentence_count, '/', condition_count, '->', sentence_count_smooth, '/', condition_count_smooth)
